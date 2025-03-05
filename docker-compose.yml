@@ -1,13 +1,17 @@
+version: '3.7'
+
 services:
   qdrant:
-    image: qdrant/qdrant
+    image: qdrant/qdrant:v1.12.2  # Nov 9, 2024以降のリリースに合わせる
     ports:
       - "6333:6333"  # REST API
       - "6334:6334"  # GRPC API
     volumes:
-      - ./qdrant_storage:/qdrant/storage  # データの永続化
+      - ./data/qdrant:/qdrant/storage  # データの永続化
+      - ./snapshots:/qdrant/snapshots  # スナップショットディレクトリ
     environment:
       - QDRANT_ALLOW_RECOVERY=true
+      - QDRANT_LOG_LEVEL=DEBUG
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
       interval: 30s

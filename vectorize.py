@@ -29,13 +29,19 @@ qdrant_client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
 collection_name = COLLECTION_NAME
 dimension = 768  # ViT-baseの埋め込み次元
 
-if qdrant_client.collection_exists(collection_name):
-    qdrant_client.delete_collection(collection_name)
+def create_collection(client, collection_name, dimension, force_recreate=False):
+    """コレクションを作成する。既存のコレクションは必要に応じて削除"""
+    if client.collection_exists(collection_name):
+        if force_recreate:
+            client.delete_collection(collection_name)
+        else:
+            print(f"Collection {collection_name} already exists. Skipping creation.")
+            return
 
-qdrant_client.create_collection(
-    collection_name=collection_name,
-    vectors_config=VectorParams(size=dimension, distance=Distance.COSINE),
-)
+    client.create_collection(
+        collection_name=collection_name,
+        vectors_config=VectorParams(size=dimension, distance=Distance.COSINE),
+    )
 
 def get_image_embedding(image_path):
     """画像パスを読み込み、ViTで埋め込みベクトルを返す"""
@@ -187,7 +193,23 @@ def process_year_directory(year_dir, base_xml_dir, point_id_start=0):
     return point_id
 
 # メイン処理
-def main():
+def main(force_recreate=False):
+    """
+    ベクトルデータベースを構築する
+    
+    Parameters:
+    -----------
+    force_recreate : bool
+        Trueの場合、既存のコレクションを削除して再作成
+    """
+    # Qdrantクライアント接続
+    qdrant_client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT)
+    
+    # コレクション作成
+    dimension = 768  # ViT-baseの埋め込み次元
+    create_collection(qdrant_client, COLLECTION_NAME, dimension, force_recreate)
+    
+    # 以降の処理は既存のコードを継続...
     point_id = 0
     
     # 各年のディレクトリを処理

@@ -1,13 +1,28 @@
-# Python-generated files
+# Python bytecode related
 __pycache__/
-*.py[oc]
+*.py[cod]
+*$py.class
+
+# Virtual environment
+env/
+venv/
+ENV/
+.env
+.venv/
+
+# Build artifacts
 build/
 dist/
-wheels/
-*.egg-info
+*.egg-info/
 
-# Virtual environments
-.venv
+# Data, snapshots, and logs (これらは通常再生成可能なファイル)
+data/
+snapshots/
+*.log
+mfer_processing.log
+
+# UV lock file
+uv.lock
 
 # Qdrant storage
 qdrant_storage/
@@ -18,5 +33,5 @@ cache/
 # Logs
 logs/
 
-# Data
-data/
+# nohup
+nohup.out
