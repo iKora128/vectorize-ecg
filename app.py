@@ -55,7 +55,7 @@ def main():
                         search_params["lead_filter"] = selected_lead
                     
                     results = search_similar_images(**search_params)
-                    display_search_results(results, query_image_path)
+                    display_search_results(results, top_k)
                 
         except Exception as e:
             st.error(f"エラーが発生しました: {str(e)}")
@@ -100,23 +100,13 @@ def convert_mfer_to_images(uploaded_file):
         st.error(f"心電図画像の生成中にエラーが発生しました: {str(e)}")
         raise e
 
-def display_search_results(results, query_image_path):
-    """
-    検索結果を表示する関数
-    """
-    st.subheader("クエリ画像")
-    query_img = Image.open(query_image_path)
-    st.image(query_img, width=600)
-    
-    st.subheader("検索結果")
-    
-    # 結果が空の場合
+def display_search_results(results, top_k):
     if not results:
         st.warning("類似した画像が見つかりませんでした")
         return
     
     # 結果の表示
-    for i, result in enumerate(results):
+    for result in results[:top_k]:
         col1, col2 = st.columns([1, 3])
         
         # 画像の表示
@@ -132,13 +122,12 @@ def display_search_results(results, query_image_path):
             st.write(f"**類似度**: {similarity:.4f}")
             
             # メタデータがある場合は表示
-            if "metadata" in result and result["metadata"]:
+            if "metadata" in result:
                 metadata = result["metadata"]
                 st.write("**メタデータ**:")
                 for key, value in metadata.items():
-                    st.write(f"- {key}: {value}")
-        
-        st.markdown("---")
+                    if value is not None:  # None値のチェックを追加
+                        st.write(f"- {key}: {value}")
 
 if __name__ == "__main__":
     main() 
